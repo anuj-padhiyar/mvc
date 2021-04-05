@@ -1,7 +1,6 @@
 <?php $this->setController(\Mage::getBlock("Controller\Core\Admin")); ?>
 
 <div class="head">
-
     <a onclick="mage.setUrl('<?php echo $this->getController()->getUrl('grid','category'); ?>').resetParams().load();" href="javascript:void(0);">Category</a>
     <a onclick="mage.setUrl('<?php echo $this->getController()->getUrl('grid','customer'); ?>').resetParams().load();" href="javascript:void(0);">Customer</a>
     <a onclick="mage.setUrl('<?php echo $this->getController()->getUrl('grid','product'); ?>').resetParams().load();" href="javascript:void(0);">Product</a>
@@ -11,10 +10,12 @@
     <a onclick="mage.setUrl('<?php echo $this->getController()->getUrl('grid','customerGroup'); ?>').resetParams().load();" href="javascript:void(0);">Customer Group</a>
     <a onclick="mage.setUrl('<?php echo $this->getController()->getUrl('grid','cmsPages'); ?>').resetParams().load();" href="javascript:void(0);">CMS Pages</a>
     <a onclick="mage.setUrl('<?php echo $this->getController()->getUrl('grid','attribute'); ?>').resetParams().load();" href="javascript:void(0);">Attribute</a>
+    <a onclick="mage.setUrl('<?php echo $this->getController()->getUrl('grid','configGroup'); ?>').resetParams().load();" href="javascript:void(0);">Config Group</a>
 </div>
 <style>
     body{
         background-color:#9fff80;
+        /* background-color:white; */
     }
     .head{
         background-color:#009933;
@@ -56,16 +57,16 @@
     .gridth{
         background-color:#669900;
     }
-    .add,.update,.delete{
+    .add,.update,.delete,.applyFilter{
         color:white;
         padding:10px;
         border-radius:10px;
     }
-    .add:hover,.update:hover,.delete:hover{
+    .add:hover,.update:hover,.delete:hover,.applyFilter:hover{
         background-color:white;
         color:black;
     }
-    .add{
+    .add,.applyFilter{
         background-color:#bf8040;
     }
     .update{
@@ -76,6 +77,9 @@
         margin-left:20px;
         background-color:red;
         padding:10px 10px 10px 10px;
+    }
+    .tabs{
+        background-color:Blue;
     }
     .tabs:hover{
         background-color:pink;

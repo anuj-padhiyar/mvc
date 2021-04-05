@@ -1,7 +1,5 @@
 <?php
 namespace Block\Core;
-\Mage::loadFileByClassName('Block\Core\Template');
-
 class Edit extends Template{
     protected $tab = null;
     protected $tableRow = null;
@@ -27,11 +25,6 @@ class Edit extends Template{
     }
 
     public function setTab($tab = null){
-        // if(!$tab){
-        //     //$tab = $this->getTabClass();
-        //     $tab = \Mage::getBlock('Block\Admin\Admin\Edit\Tabs');
-        // }
-        //$tab->setTableRow($this->getTableRow());
         $this->tab = $tab;
         return $this;
     }
@@ -52,12 +45,7 @@ class Edit extends Template{
     
     public function getTabHtml(){
         return $this->getTab()->toHtml();
-    }
-    
+    } 
 }
-
-
-
-
 
 ?>

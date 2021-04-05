@@ -5,6 +5,7 @@ class Template{
     private $template = null;
     protected $controller = null;
     protected $message = null;
+    protected $filter = null;
     protected $request = null;
     protected $url = null;
     protected $tabs = [];
@@ -88,7 +89,10 @@ class Template{
     }
 
     public function setMessage($message = null){
-		$this->message =  \Mage::getModel('Model\Admin\Message');
+        if(!$message){
+            $message =  \Mage::getModel('Model\Admin\Message');   
+        }
+        $this->message = $message;
 		return $this;
 	}
 	public function getMessage(){
@@ -96,6 +100,20 @@ class Template{
 			$this->setMessage();
 		}
 		return $this->message;
+	}
+
+    public function setFilter($filter = null){
+        if(!$filter){
+            $filter = \Mage::getModel('Model\Admin\Filter');
+        }
+        $this->filter = $filter;
+		return $this;
+	}
+	public function getFilter(){
+		if(!$this->filter){
+			$this->setFilter();
+		}
+		return $this->filter;
 	}
 
     public function setUrl($url = null){

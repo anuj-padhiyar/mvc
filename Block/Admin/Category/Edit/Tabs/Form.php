@@ -1,6 +1,5 @@
 <?php
 namespace Block\Admin\Category\Edit\Tabs;
-\Mage::loadFileByClassName('Block\Core\Template');
 class Form extends \Block\Core\Template{
 
     protected $category = null;
@@ -22,8 +21,8 @@ class Form extends \Block\Core\Template{
         }
     }
     public static function childRemove($category,$arr){
-        if($category->getData()['categoryId']){
-            $name = $category->getData()['name'];
+        if($category->getOriginalData()['categoryId']){
+            $name = $category->getOriginalData()['name'];
                 foreach($arr as $key=>$value){
                     if($name && strpos($value,$name) !== false){
                         return false;

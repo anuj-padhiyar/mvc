@@ -1,29 +1,12 @@
 <?php
-namespace Controller\Admin;
-\Mage::loadFileByClassName("Controller\Core\Admin");
 
+namespace Controller\Admin;
 class Category extends \Controller\Core\Admin{
 
     public function gridAction(){
         try{
             $grid = \Mage::getBlock('Block\Admin\Category\Grid')->toHtml();
-            $tabs = null;
-            $response = [
-                'status' => 'success',
-                'message' =>'this is edit action.',
-                'element' =>[
-                    [
-                        'selector' =>'#leftHtml',
-                        'html' =>$tabs
-                    ],
-                    [
-                        'selector' =>'#contentHtml',
-                        'html' => $grid
-                    ]
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             echo $e->getMessage();
         }
@@ -34,48 +17,22 @@ class Category extends \Controller\Core\Admin{
             if(!$this->getRequest()->isPost()){
                 throw new \Exception('Invalid Request');
             }
-            $category = \Mage::getModel("Model\Category");
-            $db = \Mage::getModel("Model\Category");
-            $category->setData($this->getRequest()->getPost('category'));
+            $category = \Mage::getModel('Model\Category');
             if($id = $this->getRequest()->getGet('categoryId')){
-                $Pid = $category->getPrimaryKey();
-                $category->$Pid = $id;
-                $db->load($category->$Pid);
-                if($db->$Pid != $category->$Pid){
+                $category = $category->load($id);
+                if(!$category){
                     throw new \Exception("Record Not Found.");
                 }
             }
+            $category = $category->setData($this->getRequest()->getPost('category'));
             if($category->save()){
-                if($db->getData()){
-                    $this->getMessage()->setSuccess("Update Successfully");
-                }else{
-                    $this->getMessage()->setSuccess("Insert Successfully");
-                }    
+                $this->getMessage()->setSuccess("Successfully Update/Insert");
             }else{
-                if($db->getData()){
-                    throw new \Exception("Unable To Update");
-                }else{
-                    throw new \Exception("Unable To Insert");
-                }  
+                $this->getMessage()->setSuccess("Unable to Update/Insert");
             }
+
             $grid = \Mage::getBlock('Block\Admin\Category\Grid')->toHtml();
-            $tabs = null;
-            $response = [
-                'status' => 'success',
-                'message' =>'this is edit action.',
-                'element' =>[
-                    [
-                        'selector' =>'#leftHtml',
-                        'html' =>$tabs
-                    ],
-                    [
-                        'selector' =>'#contentHtml',
-                        'html' => $grid
-                    ]
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
@@ -95,53 +52,37 @@ class Category extends \Controller\Core\Admin{
             }
 
             $grid = \Mage::getBlock('Block\Admin\Category\Grid')->toHtml();
-            $tabs = null;
-            $response = [
-                'status' => 'success',
-                'message' =>'this is edit action.',
-                'element' =>[
-                    [
-                        'selector' =>'#leftHtml',
-                        'html' =>$tabs
-                    ],
-                    [
-                        'selector' =>'#contentHtml',
-                        'html' => $grid
-                    ]
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
     }
 
-	public function editFormAction(){  
-        if($this->getRequest()->getGet('categoryId')){
-            $tabs = \Mage::getBlock('Block\Admin\Category\Edit\Tabs')->toHtml();
-        }else{
-            $tabs = null;
-        }
+	public function editFormAction(){
+        try{
+            $category = \Mage::getModel('Model\Category');
+            $id = (int)$this->getrequest()->getGet('categoryId');
+            if($id){
+                $category = $category->load($id);
+                if(!$category){
+                    throw new \Exception('No Record Found!!');
+                }
+            }
 
-        $grid = \Mage::getBlock('Block\Admin\Category\Edit')->toHtml();
-        $response = [
-            'status' => 'success',
-            'message' =>'this is edit action.',
-            'element' =>[
-                [
-                    'selector' =>'#leftHtml',
-                    'html' =>$tabs
-                ],
-                [
-                    'selector' =>'#contentHtml',
-                    'html' => $grid
-                ]
-            ]
-        ];
-        header("Content-Type: application/json");
-        echo json_encode($response);
-	}
+            $leftBlock = \Mage::getBlock('Block\Admin\Category\Edit\Tabs');
+            $editBlock = \Mage::getBlock('Block\Admin\Category\Edit');
+            $editBlock = $editBlock->setTab($leftBlock)->setTableRow($category)->toHtml();
+            $this->makeResponse($editBlock);
+        }catch(\Exception $e){
+            $this->getMessage()->setFailure($e->getMessage());
+        }
+    }
+
+    public function filterAction(){
+        $this->getFilter()->setFilters($this->getRequest()->getPost('field'));
+        $grid = \Mage::getBlock('Block\Admin\Category\Grid')->toHtml();
+        $this->makeResponse($grid);
+    }
 }
 
 ?>

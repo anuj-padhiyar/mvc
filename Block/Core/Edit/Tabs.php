@@ -1,6 +1,5 @@
 <?php 
 namespace Block\Core\Edit;
-
 class Tabs extends \Block\Core\Template{
 
     protected $tableRow = null;
@@ -21,7 +20,5 @@ class Tabs extends \Block\Core\Template{
         return $this;
     }
 }
-
-
 
 ?>

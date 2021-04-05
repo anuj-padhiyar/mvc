@@ -1,6 +1,5 @@
 <?php
 namespace Block\Admin\Attribute\Edit\Tabs;
-\Mage::loadFileByClassName('Block\Core\Template');
 
 class Option extends \Block\Core\Template{
     protected $attribute = null;

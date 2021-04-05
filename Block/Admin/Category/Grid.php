@@ -1,15 +1,47 @@
 <?php
 namespace Block\Admin\Category;
-\Mage::loadFileByClassName('Block\Core\Template');
-
-class Grid extends \Block\Core\Template{
-    protected $categories = [];
+class Grid extends \Block\Core\Grid{
     protected STATIC $temp = [];
     protected STATIC $names = [];
-
+    
     public function __construct(){
-        $this->setTemplate('./View/admin/category/grid.php');
+        parent::__construct();
+        $this->setCollection('Model\Category');
+        $this->setValue();
     }
+
+    public function prepareColumn(){
+        $this->addColumn('categoryId',[
+            'field'=>'categoryId',
+            'label'=>'Category Id',
+            'type'=>'number'
+        ]);
+        $this->addColumn('parentId',[
+            'field'=>'parentId',
+            'label'=>'Parent Id',
+            'type'=>'number'
+        ]);
+        $this->addColumn('name',[
+            'field'=>'name',
+            'label'=>'Name',
+            'type'=>'text'
+        ]);
+        $this->addColumn('status',[
+            'field'=>'status',
+            'label'=>'Status',
+            'type'=>'tinyint'
+        ]);
+        $this->addColumn('description',[
+            'field'=>'description',
+            'label'=>'Description',
+            'type'=>'text'
+        ]);
+    }
+
+    public function getTitle(){
+        return "Manage Category";
+    }
+
     public static function find($arr,$obj){
         foreach($arr as $key=>$value){
             if($obj->parentId == $value->categoryId){
@@ -20,34 +52,23 @@ class Grid extends \Block\Core\Template{
             }
         }
     }
-    public function setCategory($categories = null){
-        if(!$categories){
-            $categories = \Mage::getModel("Model\Category");
-            $categories = $categories->fetchAll()->getData();
-        }
-        $this->categories = $categories;
-        foreach($this->categories as $key=>$value){
-            if($value->parentId != null){
-                self::find($this->categories, $value);
+    public function setValue(){
+        if($this->collection){
+            foreach($this->collection as $key=>$value){
+                if($value->parentId != null){
+                    self::find($this->collection, $value);
+                }
+                array_push(self::$temp,$value->name);
+                self::$names[] =  implode('=>',self::$temp);
+                self::$temp = [];
             }
-            array_push(self::$temp,$value->name);
-            self::$names[] =  implode('=>',self::$temp);
-            self::$temp = [];
+            $i = 0 ;
+            foreach($this->collection as $key=>$value){
+                $value->name = self::$names[$i++];
+            }
         }
-        $i = 0 ;
-        foreach($this->categories as $key=>$value){
-            $value->name = self::$names[$i++];
-        }
-        return $this;
     }
-    public function getCategory(){
-        if(!$this->categories){
-            $this->setCategory();
-        }
-        return $this->categories;
-    }
-    // public function getUrl($actionName = NULL, $controllerName = NULL, $params =[], $resetParam = false){
-    //     return $this->getController()->getUrl($actionName, $controllerName, $params, $resetParam);
-    // }
-
 }
+
+
+?>

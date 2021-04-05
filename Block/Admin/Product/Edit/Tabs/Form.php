@@ -1,6 +1,5 @@
 <?php
 namespace Block\Admin\Product\Edit\Tabs;
-\Mage::getBlock("Block\Core\Template");
 class Form extends \Block\Core\Template{
 
     protected $product = null;

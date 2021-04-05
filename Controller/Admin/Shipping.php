@@ -1,65 +1,33 @@
 <?php
 namespace Controller\Admin;
-\Mage::loadFileByClassName("Controller\Core\Admin");
-\Mage::loadFileByClassName("Model\Core\Adapter");
-\Mage::loadFileByClassName("Model\Payment");
-
 class Shipping extends \Controller\Core\Admin
 {
     public function gridAction(){
         try{
             $grid = \Mage::getBlock('Block\Admin\Shipping\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $e->getMessage();
         }
     }
     public function saveAction(){
         try{
-            $shipping = \Mage::getModel("Model\Shipping");
-            $db = \Mage::getModel("Model\Shipping");
-            $shipping->setData($this->getRequest()->getPost('shipping'));
+            $shipping = \Mage::getModel('Model\Shipping');
             if($id = $this->getRequest()->getGet('methodId')){
-                $Pid = $shipping->getPrimaryKey();
-                $shipping->$Pid = $id;
-                $db->load($shipping->$Pid);
-                if($db->$Pid != $shipping->$Pid){
+                $shipping = $shipping->load($id);
+                if(!$shipping){
                     throw new \Exception("Record Not Found.");
                 }
             }
+            $shipping = $shipping->setData($this->getRequest()->getPost('shipping'));
             if($shipping->save()){
-                if($db->getData()){
-                    $this->getMessage()->setSuccess("Update Successfully");
-                }else{
-                    $this->getMessage()->setSuccess("Insert Successfully");
-                }    
+                $this->getMessage()->setSuccess("Successfully Update/Insert");
             }else{
-                if($db->getData()){
-                    throw new \Exception("Unable To Update");
-                }else{
-                    throw new \Exception("Unable To Insert");
-                }  
+                $this->getMessage()->setSuccess("Unable to Update/Insert");
             }
+
             $grid = \Mage::getBlock('Block\Admin\Shipping\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
@@ -80,44 +48,34 @@ class Shipping extends \Controller\Core\Admin
             $this->getMessage()->setFailure($e->getMessage());
         }
         $grid = \Mage::getBlock('Block\Admin\Shipping\Grid')->toHtml();
-        $response = [
-            'status' => 'success',
-            'message' =>'this is grid action.',
-            'element' =>[
-                'selector' =>'#contentHtml',
-                'html' =>$grid
-            ]
-        ];
-        header("Content-Type: application/json");
-        echo json_encode($response);
+        $this->makeResponse($grid);
     }
 
     public function editFormAction(){
-        if($this->getRequest()->getGet('methodId')){
-            $tabs = \Mage::getBlock('Block\Admin\Shipping\Edit\Tabs')->toHtml();
-        }else{
-            $tabs = null;
+        try{
+            $shipping = \Mage::getModel('Model\Shipping');
+            $id = (int)$this->getrequest()->getGet('methodId');
+            if($id){
+                $shipping = $shipping->load($id);
+                if(!$shipping){
+                    throw new \Exception('No Record Found!!');
+                }
+            }
+
+            $leftBlock = \Mage::getBlock('Block\Admin\Shipping\Edit\Tabs');
+            $editBlock = \Mage::getBlock('Block\Admin\Shipping\Edit');
+            $editBlock = $editBlock->setTab($leftBlock)->setTableRow($shipping)->toHtml();
+            $this->makeResponse($editBlock);
+        }catch(\Exception $e){
+            $this->getMessage()->setFailure($e->getMessage());
         }
-        $grid = \Mage::getBlock('Block\Admin\Shipping\Edit')->toHtml();
-        $response = [
-            'status' => 'success',
-            'message' =>'this is edit action.',
-            'element' =>[
-                [
-                    'selector' =>'#leftHtml',
-                    'html' =>$tabs
-                ],
-                [
-                    'selector' =>'#contentHtml',
-                    'html' => $grid
-                ]
-            ]
-        ];
-        header("Content-Type: application/json");
-        echo json_encode($response);
-        
    }
 
+    public function filterAction(){
+        $this->getFilter()->setFilters($this->getRequest()->getPost('field'));
+        $grid = \Mage::getBlock('Block\Admin\Shipping\Grid')->toHtml();
+        $this->makeResponse($grid);
+    }
 }
 
 ?>

@@ -1,62 +1,31 @@
 <?php
-namespace Controller\Admin;
-\Mage::loadFileByClassName('Controller\Core\Admin');
 
+namespace Controller\Admin;
 class Attribute extends \Controller\Core\Admin{
     
     public function gridAction(){
         $grid = \Mage::getBlock('Block\Admin\Attribute\Grid')->toHtml();
-        $response = [
-            'status' => 'success',
-            'message' =>'this is grid action.',
-            'element' =>[
-                'selector' =>'#contentHtml',
-                'html' =>$grid
-            ]
-        ];
-        header("Content-Type: application/json");
-        echo json_encode($response);
+        $this->makeResponse($grid);
     }
 
     public function saveAction(){
         try{
-            $attribute = \Mage::getModel("Model\Attribute");
-            $db = \Mage::getModel("Model\Attribute");
-            $attribute->setData($this->getRequest()->getPost('attribute'));
+            $attribute = \Mage::getModel('Model\Attribute');
             if($id = $this->getRequest()->getGet('attributeId')){
-                $Pid = $attribute->getPrimaryKey();
-                $attribute->$Pid = $id;
-                $db->load($attribute->$Pid);
-                if($db->$Pid != $attribute->$Pid){
+                $attribute = $attribute->load($id);
+                if(!$attribute){
                     throw new \Exception("Record Not Found.");
                 }
             }
-            
+            $attribute = $attribute->setData($this->getRequest()->getPost('attribute'));
             if($attribute->save()){
-                if($db->getData()){
-                    $this->getMessage()->setSuccess("Update Successfully");
-                }else{
-                    $this->getMessage()->setSuccess("Insert Successfully");
-                }    
+                $this->getMessage()->setSuccess("Successfully Update/Insert");
             }else{
-                if($db->getData()){
-                    throw new \Exception("Unable To Update");
-                }else{
-                    throw new \Exception("Unable To Insert");
-                }  
+                $this->getMessage()->setSuccess("Unable to Update/Insert");
             }
 
             $grid = \Mage::getBlock('Block\Admin\Attribute\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
@@ -74,38 +43,26 @@ class Attribute extends \Controller\Core\Admin{
                 $this->getMessage()->setSuccess("Delete Successfully");
             }
             $grid = \Mage::getBlock('Block\Admin\Attribute\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
     }
 
     public function editFormAction(){
-        if($this->getRequest()->getGet('attributeId')){
-            $tabs = \Mage::getBlock('Block\Admin\Attribute\Edit\Tabs')->toHtml();
-        }else{
-            $tabs = null;
+        $attribute = \Mage::getModel('Model\Attribute');
+        $id = (int)$this->getrequest()->getGet('attributeId');
+        if($id){
+            $attribute = $attribute->load($id);
+            if(!$attribute){
+                throw new \Exception('No Record Found!!');
+            }
         }
-        $edit = \Mage::getBlock('Block\Admin\Attribute\Edit')->toHtml();
-        $response = [
-            'status' => 'success',
-            'message' =>'this is edit action.',
-            'element' =>[
-                'selector' =>'#contentHtml',
-                'html' => $edit
-            ]
-        ];
-        header("Content-Type: application/json");
-        echo json_encode($response);
+
+        $leftBlock = \Mage::getBlock('Block\Admin\Attribute\Edit\Tabs');
+        $editBlock = \Mage::getBlock('Block\Admin\Attribute\Edit');
+        $editBlock = $editBlock->setTab($leftBlock)->setTableRow($attribute)->toHtml();
+        $this->makeResponse($editBlock);
     }
 
     public function optionsAction(){
@@ -114,7 +71,7 @@ class Attribute extends \Controller\Core\Admin{
         $attribute->load($id);
 
         $optionBlock = \Mage::getBlock('Block\Admin\Attribute\Edit\Tabs\Option');
-        $optionBlock->setAttribute( $attribute);
+        $optionBlock->setAttribute($attribute);
 
         $layout = $this->getLayout();
         $layout->getContent()->addChild($optionBlock);
@@ -126,8 +83,11 @@ class Attribute extends \Controller\Core\Admin{
         $attributeId = $this->getRequest()->getGet('attributeId');
 
         $query =  "SELECT `optionId` FROM `attribute_option` WHERE `attributeId`={$attributeId}";
-        foreach($attribute->fetchAll($query)->getData() as $key=>$value){
-            $ids[] = $value->optionId;
+        $data = $attribute->fetchAll($query);
+        if($data){
+            foreach($data->getData() as $key=>$value){
+                $ids[] = $value->optionId;
+            }
         }
 
         if($exist = $this->getRequest()->getPost('exist')){
@@ -140,7 +100,7 @@ class Attribute extends \Controller\Core\Admin{
             }
         }
         
-        if($ids){
+        if(isset($ids) && $ids){
             $query = "DELETE FROM `attribute_option` WHERE `optionId` IN (".implode(",",$ids).")";
             $attribute->save($query);
         }
@@ -157,17 +117,15 @@ class Attribute extends \Controller\Core\Admin{
                 $attribute->save($query);
             }
         }
+        
         $grid = \Mage::getBlock('Block\Admin\Attribute\Grid')->toHtml();
-        $response = [
-            'status' => 'success',
-            'message' =>'this is grid action.',
-            'element' =>[
-                'selector' =>'#contentHtml',
-                'html' =>$grid
-            ]
-        ];
-        header("Content-Type: application/json");
-        echo json_encode($response);
+        $this->makeResponse($grid);
+    }
+
+    public function filterAction(){
+        $this->getFilter()->setFilters($this->getRequest()->getPost('field'));
+        $grid = \Mage::getBlock('Block\Admin\Attribute\Grid')->toHtml();
+        $this->makeResponse($grid);
     }
 }
 

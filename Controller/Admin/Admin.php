@@ -1,64 +1,34 @@
 <?php
 namespace Controller\Admin;
-\Mage::loadFileByClassName("Controller\Core\Admin");
-
 class Admin extends \Controller\Core\Admin
 {
     public function gridAction(){
         try{
             $grid = \Mage::getBlock('Block\Admin\Admin\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
-            $e->getMessage();
+            $this->getMessage()->setFailure($e->getMessage());
         }
     }
 
     public function saveAction(){
         try{
-            $admin = \Mage::getModel("Model\Admin");
-            $db = \Mage::getModel("Model\Admin");
-            $admin->setData($this->getRequest()->getPost('admin'));
+            $admin = \Mage::getModel('Model\Admin');
             if($id = $this->getRequest()->getGet('adminId')){
-                $Pid = $admin->getPrimaryKey();
-                $admin->$Pid = $id;
-                $db->load($admin->$Pid);
-                if($db->$Pid != $admin->$Pid){
+                $admin = $admin->load($id);
+                if(!$admin){
                     throw new \Exception("Record Not Found.");
                 }
             }
+            $admin = $admin->setData($this->getRequest()->getPost('admin'));
             if($admin->save()){
-                if($db->getData()){
-                    $this->getMessage()->setSuccess("Update Successfully");
-                }else{
-                    $this->getMessage()->setSuccess("Insert Successfully");
-                }    
+                $this->getMessage()->setSuccess("Successfully Update/Insert");
             }else{
-                if($db->getData()){
-                    throw new \Exception("Unable To Update");
-                }else{
-                    throw new \Exception("Unable To Insert");
-                }  
-            } 
+                $this->getMessage()->setSuccess("Unable to Update/Insert");
+            }
+
             $grid = \Mage::getBlock('Block\Admin\Admin\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
@@ -79,23 +49,13 @@ class Admin extends \Controller\Core\Admin
             $this->getMessage()->setFailure($e->getMessage());
         }
         $grid = \Mage::getBlock('Block\Admin\Admin\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'Delete Successfully',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+        $this->makeResponse($grid);
     }
 
     public function editFormAction(){
         try{
             $admin = \Mage::getModel('Model\Admin');
-
-            $id = (int)$this->getrequest()->getGet('id');
+            $id = (int)$this->getrequest()->getGet('adminId');
             if($id){
                 $admin = $admin->load($id);
                 if(!$admin){
@@ -106,22 +66,17 @@ class Admin extends \Controller\Core\Admin
             $leftBlock = \Mage::getBlock('Block\Admin\Admin\Edit\Tabs');
             $editBlock = \Mage::getBlock('Block\Admin\Admin\Edit');
             $editBlock = $editBlock->setTab($leftBlock)->setTableRow($admin)->toHtml();
-            
-            $response = [
-                'status' => 'success',
-                'message' =>'this is edit action.',
-                'element' =>[
-                        'selector' =>'#contentHtml',
-                        'html' => $editBlock
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($editBlock);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
-   }
+    }
 
+    public function filterAction(){
+        $this->getFilter()->setFilters($this->getRequest()->getPost('field'));
+        $grid = \Mage::getBlock('Block\Admin\Admin\Grid')->toHtml();
+        $this->makeResponse($grid);
+    }
 }
 
 ?>

@@ -1,7 +1,5 @@
 <?php
 namespace Block\Admin\Customer\Edit\Tabs;
-\Mage::getBlock("Block\Core\Template");
-
 class Form extends \Block\Core\Template{
 
     protected $customer = null;

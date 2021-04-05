@@ -1,6 +1,5 @@
 <?php
 namespace Block\Admin\CmsPages\Edit\Tabs;
-\Mage::loadFileByClassName('Block\Core\Template');
 class Form extends \Block\Core\Template{
     protected $cmsPages = null;
 

@@ -1,22 +1,12 @@
 <?php
-namespace Controller\Admin;
-\Mage::loadFileByClassName('Controller\Core\Admin');
 
+namespace Controller\Admin;
 class CmsPages extends \Controller\Core\Admin{
 
     public function gridAction(){
         try{
             $grid = \Mage::getBlock('Block\Admin\CmsPages\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
@@ -24,41 +14,22 @@ class CmsPages extends \Controller\Core\Admin{
 
     public function saveAction(){
         try{
-            $cmsPages = \Mage::getModel("Model\CmsPages");
-            $db = \Mage::getModel("Model\CmsPages");
-            $cmsPages->setData($this->getRequest()->getPost('cmsPages'));
+            $cmsPages = \Mage::getModel('Model\CmsPages');
             if($id = $this->getRequest()->getGet('pageId')){
-                $Pid = $cmsPages->getPrimaryKey();
-                $cmsPages->$Pid = $id;
-                $db->load($cmsPages->$Pid);
-                if($db->$Pid != $cmsPages->$Pid){
+                $cmsPages = $cmsPages->load($id);
+                if(!$cmsPages){
                     throw new \Exception("Record Not Found.");
                 }
             }
+            $cmsPages = $cmsPages->setData($this->getRequest()->getPost('cmsPages'));
             if($cmsPages->save()){
-                if($db->getData()){
-                    $this->getMessage()->setSuccess("Update Successfully");
-                }else{
-                    $this->getMessage()->setSuccess("Insert Successfully");
-                }    
+                $this->getMessage()->setSuccess("Successfully Update/Insert");
             }else{
-                if($db->getData()){
-                    throw new \Exception("Unable To Update");
-                }else{
-                    throw new \Exception("Unable To Insert");
-                }  
-            } 
+                $this->getMessage()->setSuccess("Unable to Update/Insert");
+            }
+
             $grid = \Mage::getBlock('Block\Admin\CmsPages\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
@@ -79,42 +50,34 @@ class CmsPages extends \Controller\Core\Admin{
             $this->getMessage()->setFailure($e->getMessage());
         }
         $grid = \Mage::getBlock('Block\Admin\CmsPages\Grid')->toHtml();
-        $response = [
-            'status' => 'success',
-            'message' =>'this is grid action.',
-            'element' =>[
-                'selector' =>'#contentHtml',
-                'html' =>$grid
-            ]
-        ];
-        header("Content-Type: application/json");
-        echo json_encode($response);
+        $this->makeResponse($grid);
     }
 
     public function editFormAction(){
-        if($this->getRequest()->getGet('pageId')){
-            $tabs = \Mage::getBlock('Block\Admin\CmsPages\Edit\Tabs')->toHtml();
-        }else{
-            $tabs = null;
+        try{
+            $cms = \Mage::getModel('Model\CmsPages');
+            $id = (int)$this->getrequest()->getGet('pageId');
+            if($id){
+                $cms = $cms->load($id);
+                if(!$cms){
+                    throw new \Exception('No Record Found!!');
+                }
+            }
+
+            $leftBlock = \Mage::getBlock('Block\Admin\CmsPages\Edit\Tabs');
+            $editBlock = \Mage::getBlock('Block\Admin\CmsPages\Edit');
+            $editBlock = $editBlock->setTab($leftBlock)->setTableRow($cms)->toHtml();
+            $this->makeResponse($editBlock);
+        }catch(\Exception $e){
+            $this->getMessage()->setFailure($e->getMessage());
         }
-        $grid = \Mage::getBlock('Block\Admin\CmsPages\Edit')->toHtml();
-        $response = [
-            'status' => 'success',
-            'message' =>'this is edit action.',
-            'element' =>[
-                [
-                    'selector' =>'#leftHtml',
-                    'html' =>$tabs
-                ],
-                [
-                    'selector' =>'#contentHtml',
-                    'html' => $grid
-                ]
-            ]
-        ];
-        header("Content-Type: application/json");
-        echo json_encode($response);
-   }
+    }
+
+    public function filterAction(){
+        $this->getFilter()->setFilters($this->getRequest()->getPost('field'));
+        $grid = \Mage::getBlock('Block\Admin\CmsPages\Grid')->toHtml();
+        $this->makeResponse($grid);
+    }
 }
 
 

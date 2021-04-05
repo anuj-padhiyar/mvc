@@ -1,27 +1,35 @@
 <?php
 namespace Block\Admin\CustomerGroup;
-\Mage::loadFileByClassName('Block\Core\Template');
-
-class Grid extends  \Block\Core\Template{
-    protected $customerGroups = [];
-
+class Grid extends \Block\Core\Grid{
     public function __construct(){
-        $this->setTemplate('./View/admin/customerGroup/grid.php');
+        parent::__construct();
+        $this->setCollection('Model\CustomerGroup');
     }
 
-    public function setCustomerGroup($customerGroups = null){   
-        if(!$customerGroups){
-            $customerGroups = \Mage::getModel('Model\CustomerGroup')->fetchAll()->getData();
-        }
-        $this->customerGroups = $customerGroups;
-        return $this;
+    public function prepareColumn(){
+        $this->addColumn('groupId',[
+            'field'=>'groupId',
+            'label'=>'Group Id',
+            'type'=>'text'
+        ]);
+        $this->addColumn('name',[
+            'field'=>'name',
+            'label'=>'Name',
+            'type'=>'text'
+        ]);
+        $this->addColumn('status',[
+            'field'=>'status',
+            'label'=>'Status',
+            'type'=>'tinyint'
+        ]);
+        $this->addColumn('createdDate',[
+            'field'=>'createdDate',
+            'label'=>'Created Date',
+            'type'=>'datetime'
+        ]);
     }
-    public function getCustomerGroup(){
-        if(!$this->customerGroups){
-            $this->setCustomerGroup();
-        }
-        return $this->customerGroups;
+
+    public function getTitle(){
+        return "Manage Customer Group";
     }
 }
-
-?>

@@ -67,11 +67,52 @@ Base.prototype = {
         }
     },
     setForm:function(){
-        var id = '#'+$('form').attr('id');
+        var id = $('#form').attr('id');
         this.setParams($(id).serializeArray());
         this.setMethod($(id).attr('method'));
         this.setUrl($(id).attr('action'));
         this.load();
+    },
+    setCms:function(){
+        var id = $('#form').attr('id');
+        var cmsContent = CKEDITOR.instances['cmsPages[content]'].getData();
+        this.setParams($(id).serializeArray());
+        this.setMethod($(id).attr('method'));
+        this.setUrl($(id).attr('action'));
+        $.each(this.params,function(i,val){
+            if(val['name']=='cmsPages[content]'){
+                val['value']=cmsContent; 
+            }
+        })
+        this.load();
+    },
+    changeAction:function(value){
+        $('#form').attr('action',value);
+        return this;
+    },
+    setImage:function(){
+        var self = this;
+        var formData = new FormData();
+        var files = $('#image')[0].files[0];
+        formData.append('image',files);
+        
+        var id = $('#form').attr('id');
+        $.ajax({
+            url:$(id).attr('action'),
+            type:$(id).attr('method'),
+            data: formData,
+            contentType:false,
+            cache:false,
+            processData:false,
+            success:function(data){
+                self.manageHtml(data);
+            }
+        });
+    },
+    showCartItems:function(){
+        var id = $('#customers').val();
+        $('#form').attr('action',id);
+        return this;
     }
 }
 

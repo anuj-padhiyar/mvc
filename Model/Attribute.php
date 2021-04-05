@@ -1,8 +1,6 @@
 <?php
-namespace Model;
-\Mage::loadFileByClassName("Model\Core\Adapter");
-\Mage::loadFileByClassName("Model\Core\Table");
 
+namespace Model;
 class Attribute extends \Model\Core\Table{
 
     const STATUS_ENABLED = 1;
@@ -23,7 +21,7 @@ class Attribute extends \Model\Core\Table{
 
     public function getBackendTypeOption(){
         return [
-            'varchar'=>'Varchar',
+            'varchar(128)'=>'Varchar',
             'int'=>'Int',
             'decimal'=>'Decimal',
             'text'=>'Text'
@@ -54,7 +52,9 @@ class Attribute extends \Model\Core\Table{
         $query = "SELECT * FROM `attribute_option`
             WHERE `attributeId` = '{$this->attributeId}'
             ORDER BY `sortOrder` ASC";
-        $options = \Mage::getModel('Model\Attribute')->fetchAll($query)->getData();
+        if($options = \Mage::getModel('Model\Attribute')->fetchAll($query)){
+            $options = $options->getData();
+        }
         return $options;
         
     }

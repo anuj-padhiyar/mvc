@@ -1,6 +1,5 @@
 <?php
 namespace Block\Admin\Admin\Edit\Tabs;
-\Mage::loadFileByClassName('Block\Core\Template');
 class Form extends \Block\Core\Template{
     protected $admin = null;
 

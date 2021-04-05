@@ -1,26 +1,41 @@
 <?php
 namespace Block\Admin\Payment;
-\Mage::loadFileByClassName('Block\Core\Template');
-class Grid extends \Block\Core\Template{
-    protected $payments = [];
-
+class Grid extends \Block\Core\Grid{
+    
     public function __construct(){
-        $this->setTemplate('./View/admin/payment/grid.php');
+        parent::__construct();
+        $this->setCollection('Model\Payment');
     }
-    public function setPayment($payments = null){
-        if(!$payments){
-            $payments = \Mage::getModel('Model\Payment');
-            $payments = $payments->fetchAll()->getData();
-        }
-        $this->payments =$payments;
-        return $this;
+
+    public function prepareColumn(){
+        $this->addColumn('methodId',[
+            'field'=>'methodId',
+            'label'=>'Method Id',
+            'type'=>'int'
+        ]);
+        $this->addColumn('name',[
+            'field'=>'name',
+            'label'=>'Name',
+            'type'=>'text'
+        ]);
+        $this->addColumn('description',[
+            'field'=>'description',
+            'label'=>'Description',
+            'type'=>'text'
+        ]);
+        $this->addColumn('status',[
+            'field'=>'status',
+            'label'=>'Status',
+            'type'=>'tinyint'
+        ]);
+        $this->addColumn('createdDate',[
+            'field'=>'createdDate',
+            'label'=>'Created Date',
+            'type'=>'datetime'
+        ]);
     }
-    public function getPayment(){
-        if(!$this->payments){
-            $this->setPayment();
-        }
-        return $this->payments;
+
+    public function getTitle(){
+        return "Manage Payment";
     }
 }
-
-?>

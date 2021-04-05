@@ -1,6 +1,5 @@
 <?php
 namespace Block\Admin\Product\Edit\Tabs;
-\Mage::loadFileByClassName('Block\Core\Template');
 class GroupPrice extends \Block\Core\Template{
     protected $groupPrice = [];
 
@@ -19,7 +18,7 @@ class GroupPrice extends \Block\Core\Template{
                         AND pgp.`productId` = {$id}
                     LEFT JOIN `product` AS `p` 
                         ON pgp.`productId` = p.`productId`";
-                $groupPrice = $product->fetchAll($query)->getData();
+                $groupPrice = $product->fetchAll($query)->getdata();
             }
         }
         $this->groupPrice = $groupPrice;

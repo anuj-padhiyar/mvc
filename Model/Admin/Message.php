@@ -1,8 +1,6 @@
 <?php
-namespace Model\Admin;
-//\Mage::loadFileByClassName("Model\Core\Message\Trait");
-\Mage::loadFileByClassName("Model\Admin\Session");
 
+namespace Model\Admin;
 class Message extends \Model\Admin\Session{
     //use Model\Core\Message\Trait;
 

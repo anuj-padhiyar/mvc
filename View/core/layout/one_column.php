@@ -3,6 +3,7 @@
 		<title>Home(1)</title>
 		<script type="text/javascript" src="<?php echo $this->baseUrl('Skin/Admin/Js/jquery.js'); ?>"></script>
 		<script type="text/javascript" src="<?php echo $this->baseUrl('Skin/Admin/Js/mage.js'); ?>"></script>
+		<script type="text/javascript" src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
 	</head>
 	<body>
 		<div id="gridHtml">

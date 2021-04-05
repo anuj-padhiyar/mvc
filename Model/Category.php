@@ -1,7 +1,6 @@
 <?php
-namespace Model;
-\Mage::loadFileByClassName("Model\Core\Table");
 
+namespace Model;
 class Category extends \Model\Core\Table{
 
     const STATUS_ENABLED = 1;
@@ -22,8 +21,8 @@ class Category extends \Model\Core\Table{
 
     public function makeChange(){
         $data = $this->fetchAll()->getData();
-        $categoryId = $this->getData()[$this->getPrimaryKey()];
-        $parentId = $this->getData()['parentId'];
+        $categoryId = $this->getOriginalData()[$this->getPrimaryKey()];
+        $parentId = $this->getOriginalData()['parentId'];
         if(!$parentId){
             $parentId = 0;
         }

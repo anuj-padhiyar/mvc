@@ -1,60 +1,31 @@
 <?php
-namespace Controller\Admin;
-\Mage::loadFileByClassName('Controller\Core\Admin');
 
+namespace Controller\Admin;
 class CustomerGroup extends \Controller\Core\Admin{
 
     public function gridAction(){
         $grid = \Mage::getBlock('Block\Admin\CustomerGroup\Grid')->toHtml();
-        $response = [
-            'status' => 'success',
-            'message' =>'this is grid action.',
-            'element' =>[
-                'selector' =>'#contentHtml',
-                'html' =>$grid
-            ]
-        ];
-        header("Content-Type: application/json");
-        echo json_encode($response);
+        $this->makeResponse($grid);
     }
 
     public function saveAction(){
         try{
-            $group = \Mage::getModel("Model\CustomerGroup");
-            $db = \Mage::getModel("Model\CustomerGroup");
-            $group->setData($this->getRequest()->getPost('customerGroup'));
-            if($id = $this->getRequest()->getGet('groupId')){
-                $Pid = $group->getPrimaryKey();
-                $group->$Pid = $id;
-                $db->load($group->$Pid);
-                if($db->$Pid != $group->$Pid){
+            $customerGroup = \Mage::getModel('Model\CustomerGroup');
+            if($id = $this->getRequest()->getGet('customerGroupId')){
+                $customerGroup = $customerGroup->load($id);
+                if(!$customerGroup){
                     throw new \Exception("Record Not Found.");
                 }
             }
-            if($group->save()){
-                if($db->getData()){
-                    $this->getMessage()->setSuccess("Update Successfully");
-                }else{
-                    $this->getMessage()->setSuccess("Insert Successfully");
-                }    
+            $customerGroup = $customerGroup->setData($this->getRequest()->getPost('customerGroup'));
+            if($customerGroup->save()){
+                $this->getMessage()->setSuccess("Successfully Update/Insert");
             }else{
-                if($db->getData()){
-                    throw new \Exception("Unable To Update");
-                }else{
-                    throw new \Exception("Unable To Insert");
-                }  
-            } 
+                $this->getMessage()->setSuccess("Unable to Update/Insert");
+            }
+
             $grid = \Mage::getBlock('Block\Admin\CustomerGroup\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
@@ -75,41 +46,33 @@ class CustomerGroup extends \Controller\Core\Admin{
             $this->getMessage()->setFailure($e->getMessage());
         }
         $grid = \Mage::getBlock('Block\Admin\CustomerGroup\Grid')->toHtml();
-        $response = [
-            'status' => 'success',
-            'message' =>'this is grid action.',
-            'element' =>[
-                'selector' =>'#contentHtml',
-                'html' =>$grid
-            ]
-        ];
-        header("Content-Type: application/json");
-        echo json_encode($response);
+        $this->makeResponse($grid);
     }
 
     public function editFormAction(){
-        if($this->getRequest()->getGet('groupId')){
-            $tabs = \Mage::getBlock('Block\Admin\CustomerGroup\Edit\Tabs')->toHtml();
-        }else{
-            $tabs = null;
+        try{
+            $group = \Mage::getModel('Model\CustomerGroup');
+            $id = (int)$this->getrequest()->getGet('categoryId');
+            if($id){
+                $group = $group->load($id);
+                if(!$group){
+                    throw new \Exception('No Record Found!!');
+                }
+            }
+
+            $leftBlock = \Mage::getBlock('Block\Admin\CustomerGroup\Edit\Tabs');
+            $editBlock = \Mage::getBlock('Block\Admin\CustomerGroup\Edit');
+            $editBlock = $editBlock->setTab($leftBlock)->setTableRow($group)->toHtml();
+            $this->makeResponse($editBlock);
+        }catch(\Exception $e){
+            $this->getMessage()->setFailure($e->getMessage());
         }
-        $grid = \Mage::getBlock('Block\Admin\CustomerGroup\Edit')->toHtml();
-        $response = [
-            'status' => 'success',
-            'message' =>'this is edit action.',
-            'element' =>[
-                [
-                    'selector' =>'#leftHtml',
-                    'html' =>$tabs
-                ],
-                [
-                    'selector' =>'#contentHtml',
-                    'html' => $grid
-                ]
-            ]
-        ];
-        header("Content-Type: application/json");
-        echo json_encode($response);
+    }
+
+    public function filterAction(){
+        $this->getFilter()->setFilters($this->getRequest()->getPost('field'));
+        $grid = \Mage::getBlock('Block\Admin\CustomerGroup\Grid')->toHtml();
+        $this->makeResponse($grid);
     }
 }
 

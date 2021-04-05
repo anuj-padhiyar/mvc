@@ -1,12 +1,11 @@
 <?php 
+
 namespace Controller\Core;
-\Mage::loadFileByClassName("Model\Core\Request");
-\Mage::loadFileByClassName("Block\Core\Layout");
-\Mage::loadFileByClassName("Block\Core\Template");
 class Admin{
 	protected $request = null;
     protected $layout = null;
 	protected $message = null;
+	protected $filter = null;
 
 	public function __construct(){
 		$this->setRequest();
@@ -24,10 +23,6 @@ class Admin{
     	return $this->layout;
     }
 
-    // public function renderLayout(){
-    // 	$this->getLayout()->toHtml();
-    // }	
-
 	public function setRequest(){
 		$this->request = \Mage::getModel('Model\Core\Request');
 		return $this;
@@ -41,22 +36,22 @@ class Admin{
 	}
 
 
-    public function redirect($actionName = NULL, $controllerName = NULL)
+    public function redirect($actionName = NULL, $controllerName = NULL, $params = [] , $resetParams = False)
     {
-        header("location:" . $this->getUrl($actionName, $controllerName,[],true));
+        header("location:" . $this->getUrl($actionName, $controllerName,$params,$resetParams));
     }
 
     public function getUrl($actionName = NULL, $controllerName = NULL, $params = [] , $resetParams = False)
     {
         $final = $this->getRequest()->getGet();
 
-		if ($resetParams) {
+		if ($resetParams){
 			$final = [];
 		}
-		if ($actionName == NULL) {
+		if ($actionName == NULL){
 			$actionName = $this->getRequest()->getGet('a');
 		}
-		if ($controllerName == NULL) {
+		if ($controllerName == NULL){
 			$controllerName = $this->getRequest()->getGet('c');
 		}
 		$final['c'] = $controllerName;
@@ -79,6 +74,30 @@ class Admin{
 			$this->setMessage();
 		}
 		return $this->message;
+	}
+
+	public function setFilter($filter = null){
+		$this->filter =  \Mage::getModel('Model\Admin\Filter');
+		return $this;
+	}
+	public function getFilter(){
+		if(!$this->filter){
+			$this->setFilter();
+		}
+		return $this->filter;
+	}
+
+	public function makeResponse($block){
+		$response = [
+			'status' => 'success',
+			'message' =>'this is grid action.',
+			'element' =>[
+				'selector' =>'#contentHtml',
+				'html' =>$block
+			]
+		];
+		header("Content-Type: application/json");
+		echo json_encode($response);
 	}
 }
 ?>

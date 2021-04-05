@@ -1,66 +1,34 @@
 <?php
-namespace Controller\Admin;
-\Mage::loadFileByClassName("Controller\Core\Admin");
-\Mage::loadFileByClassName("Model\Core\Adapter");
-\Mage::loadFileByClassName("Model\Customer");
 
+namespace Controller\Admin;
 class Customer extends \Controller\Core\Admin
 {
     public function gridAction(){
         try{
             $grid = \Mage::getBlock('Block\Admin\Customer\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $e->getMessage();
         }
     }
     public function saveAction(){
         try{
-            $customer = \Mage::getModel("Model\Customer");
-            $db = \Mage::getModel("Model\Customer");
-            $customer->setData($this->getrequest()->getPost('customer'));
+            $customer = \Mage::getModel('Model\Customer');
             if($id = $this->getRequest()->getGet('customerId')){
-                $customer->updatedDate = date("Y-m-d H:i:s");
-                $Pid = $customer->getPrimaryKey();
-                $customer->$Pid = $id;
-                $db->load($customer->$Pid);
-                if($db->$Pid != $customer->$Pid){
+                $customer = $customer->load($id);
+                if(!$customer){
                     throw new \Exception("Record Not Found.");
                 }
             }
+            $customer = $customer->setData($this->getRequest()->getPost('customer'));
             if($customer->save()){
-                if($db->getData()){
-                    $this->getMessage()->setSuccess("Update Successfully");
-                }else{
-                    $this->getMessage()->setSuccess("Insert Successfully");
-                }
+                $this->getMessage()->setSuccess("Successfully Update/Insert");
             }else{
-                if($db->getData()){
-                    throw new \Exception("Unable To Update");
-                }else{
-                    throw new \Exception("Unable To Insert");
-                }  
+                $this->getMessage()->setSuccess("Unable to Update/Insert");
             }
+            
             $grid = \Mage::getBlock('Block\Admin\Customer\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
@@ -79,92 +47,71 @@ class Customer extends \Controller\Core\Admin
                 $this->getMessage()->setSuccess("Delete Succcessfuly");
             }
             $grid = \Mage::getBlock('Block\Admin\Customer\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+            $this->makeResponse($grid);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
     }
 
 	public function editFormAction(){
-        if($this->getRequest()->getGet('customerId')){
-            $tabs = \Mage::getBlock('Block\Admin\Customer\Edit\Tabs')->toHtml();
-        }else{
-            $tabs = null;
-        }
-        $grid = \Mage::getBlock('Block\Admin\Customer\Edit')->toHtml();
-        $response = [
-            'status' => 'success',
-            'message' =>'this is edit action.',
-            'element' =>[
-                [
-                    'selector' =>'#leftHtml',
-                    'html' =>$tabs
-                ],
-                [
-                    'selector' =>'#contentHtml',
-                    'html' => $grid
-                ]
-            ]
-        ];
-        header("Content-Type: application/json");
-        echo json_encode($response);
-	}
-
-    public function addressSaveAction(){
         try{
-            $customerBilling = \Mage::getModel("Model\Customer");
-            $customerShipping = \Mage::getModel("Model\Customer");
-            $customerBilling->setTableName('customer_address');
-            $customerShipping->setTableName('customer_address');
-            $customerBilling->setPrimaryKey('customerId');
-            $customerShipping->setPrimaryKey('customerId');
-            $customerShipping->addressType = 'Shipping';
-            $customerBilling->addressType = 'Billing';
-
-            $customer = \Mage::getModel("Model\Customer");
-            $customer->setData($this->getRequest()->getPost());
-           
-            foreach($customer->getData() as $key=>$value){
-                if(strpos($key,'shipping') !== false){
-                    $key = substr($key,8);
-                    $customerShipping->$key = $value;
-                }else{
-                    $customerBilling->$key = $value;
+            $customer = \Mage::getModel('Model\Customer');
+            $id = (int)$this->getrequest()->getGet('customerId');
+            if($id){
+                $customer = $customer->load($id);
+                if(!$customer){
+                    throw new \Exception('No Record Found!!');
                 }
             }
-            if($id = $this->getRequest()->getGet('customerId')){
-                $Pid = $customer->getPrimaryKey();
-                $customerBilling->$Pid = $id;
-                $customerShipping->$Pid = $id;
-            }
-            if($id && $customerBilling->addresssave() && $customerShipping->addresssave()){
-                $this->getMessage()->setSuccess("Update Successfully");
-            }else{
-                throw new \Exception("Unable To Update");
-            }
-            $grid = \Mage::getBlock('Block\Admin\Customer\Grid')->toHtml();
-            $response = [
-                'status' => 'success',
-                'message' =>'this is grid action.',
-                'element' =>[
-                    'selector' =>'#contentHtml',
-                    'html' =>$grid
-                ]
-            ];
-            header("Content-Type: application/json");
-            echo json_encode($response);
+
+            $leftBlock = \Mage::getBlock('Block\Admin\Customer\Edit\Tabs');
+            $editBlock = \Mage::getBlock('Block\Admin\Customer\Edit');
+            $editBlock = $editBlock->setTab($leftBlock)->setTableRow($customer)->toHtml();
+            $this->makeResponse($editBlock);
         }catch(\Exception $e){
             $this->getMessage()->setFailure($e->getMessage());
         }
+   }
+
+    public function addressSaveAction(){
+        try{
+
+            $billingData = $this->getRequest()->getPost('billing');
+            $shippingData = $this->getRequest()->getPost('shipping');
+
+            $id = $this->getRequest()->getGet('customerId');
+            $customer = \Mage::getModel('Model\Customer');
+            $customer->customerId = $id;
+
+            if($billing = $customer->getBillingAddress()){
+                $billing->setData($billingData);
+            }else{
+                $billing = \Mage::getModel('Model\Customer\Address')->setData($billingData);
+                $billing->addressType = 'billing';
+                $billing->customerId = $id;
+            }
+            $billing->save();
+
+            if($shipping = $customer->getShippingAddress()){
+                $shipping->setData($shippingData);
+            }else{
+                $shipping = \Mage::getModel('Model\Customer\Address')->setData($shippingData);
+                $shipping->addressType = 'shipping';
+                $shipping->customerId = $id;
+            }
+            $shipping->save();
+
+            $grid = \Mage::getBlock('Block\Admin\Customer\Grid')->toHtml();
+            $this->makeResponse($grid);
+        }catch(\Exception $e){
+            $this->getMessage()->setFailure($e->getMessage());
+        }
+    }
+
+    public function filterAction(){
+        $this->getFilter()->setFilters($this->getRequest()->getPost('field'));
+        $grid = \Mage::getBlock('Block\Admin\Customer\Grid')->toHtml();
+        $this->makeResponse($grid);
     }
 }
 

@@ -1,7 +1,6 @@
 <?php
-namespace Model\Core;
-\Mage::loadFileByClassName("Model\Core\Request");
 
+namespace Model\Core;
 class Url
 {
 	protected $request=null;

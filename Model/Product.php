@@ -1,6 +1,6 @@
 <?php
+
 namespace Model;
-\Mage::loadFileByClassName("Model\Core\Table");
 class Product extends \Model\Core\Table{
 
     const STATUS_ENABLED = 1;

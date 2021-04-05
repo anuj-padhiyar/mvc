@@ -1,7 +1,6 @@
 <?php 
-namespace Model;
-\Mage::loadFileByClassName('Model\Core\Table');
 
+namespace Model;
 class CustomerGroup extends \Model\Core\Table{
     const STATUS_ENABLED = 1;
     const  STATUS_DISABLED = 0;

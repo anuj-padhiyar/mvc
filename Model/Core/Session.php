@@ -32,14 +32,18 @@ class Session{
         return $this;
     }
     public function __get($key){
-        if(array_key_exists($key, $_SESSION[$this->getNameSpace()])){
-            return $_SESSION[$this->getNameSpace()][$key];
+        if($_SESSION){
+            if(array_key_exists($key, $_SESSION[$this->getNameSpace()])){
+                return $_SESSION[$this->getNameSpace()][$key];
+            }
         }
         return null;
     }
     public function __unset($key){
-        if(array_key_exists($key,$_SESSION[$this->getNameSpace()])){
-            unset($_SESSION[$this->getNameSpace()][$key]);
+        if($_SESSION){
+            if(array_key_exists($key,$_SESSION[$this->getNameSpace()])){
+                unset($_SESSION[$this->getNameSpace()][$key]);
+            }
         }
         return $this;
     }

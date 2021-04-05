@@ -1,25 +1,50 @@
 <?php
 namespace Block\Admin\Shipping;
-\Mage::loadFileByClassName('Block\Core\Template');
-class Grid extends \Block\Core\Template{
-    protected $shippings = [];
-
+class Grid extends \Block\Core\Grid{
     public function __construct(){
-        $this->setTemplate('./View/admin/shipping/grid.php');
-    }
-    public function setShipping($shippings = null){
-        if(!$shippings){
-            $shippings = \Mage::getModel('Model\Shipping');
-            $shippings = $shippings->fetchAll()->getData();
-        }
-        $this->shippings = $shippings;
-        return $this;
-    }
-    public function getShipping(){
-        if(!$this->shippings){
-            $this->setShipping();
-        }
-        return $this->shippings;
+        parent::__construct();
+        $this->setCollection('Model\Shipping');
     }
 
+    public function prepareColumn(){
+        $this->addColumn('methodId',[
+            'field'=>'methodId',
+            'label'=>'Method Id',
+            'type'=>'int'
+        ]);
+        $this->addColumn('name',[
+            'field'=>'name',
+            'label'=>'Name',
+            'type'=>'text'
+        ]);
+        $this->addColumn('code',[
+            'field'=>'code',
+            'label'=>'Code',
+            'type'=>'number'
+        ]);
+        $this->addColumn('amount',[
+            'field'=>'amount',
+            'label'=>'Amount',
+            'type'=>'number'
+        ]);
+        $this->addColumn('description',[
+            'field'=>'description',
+            'label'=>'Description',
+            'type'=>'text'
+        ]);
+        $this->addColumn('status',[
+            'field'=>'status',
+            'label'=>'Status',
+            'type'=>'tinyint'
+        ]);
+        $this->addColumn('createdDate',[
+            'field'=>'createdDate',
+            'label'=>'Created Date',
+            'type'=>'datetime'
+        ]);
+    }
+
+    public function getTitle(){
+        return "Manage Shipping";
+    }
 }

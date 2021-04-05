@@ -1,8 +1,5 @@
 <?php
 namespace Model\Core;
-//\Mage::loadFileByClassName("Model\Core\Message\Trait");
-\Mage::loadFileByClassName("Model\Core\Session");
-
 class Message extends \Model\Core\Session{
     //use Model\Core\Message\Trait;
 
