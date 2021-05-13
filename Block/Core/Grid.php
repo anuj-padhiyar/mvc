@@ -7,7 +7,7 @@ class Grid extends \Block\Core\Template{
     protected $collection = [];
 
     public function __construct(){
-        parent::__construct();
+        // parent::__construct();
         $this->setTemplate('./View/core/grid.php');
         $this->prepareColumn();
         $this->prepareActions();

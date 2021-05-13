@@ -47,6 +47,13 @@ class Item extends \Model\Core\Table
     public function getFinalTotal(){
         return $this->getRowTotal() - $this->getDiscount();
     }
+
+    public function getProductName(){
+        if(!$this->productId){  
+            return null;
+        }
+        return \Mage::getModel('Model\Product')->load($this->productId)->name;
+    }
 }
 
 ?>

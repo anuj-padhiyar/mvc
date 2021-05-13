@@ -12,9 +12,9 @@ class Template{
     protected $defaultTab = null;
 
     public function __construct(){
-        
-    }
 
+    }
+    
     public function createBlock($className){
         return \Mage::getBlock($className);
     }

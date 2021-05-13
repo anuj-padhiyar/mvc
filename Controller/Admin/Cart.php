@@ -272,10 +272,6 @@ class Cart extends \Controller\Core\Admin{
         }
         $cart = $cart->load($id);
 
-        // echo "<pre>";
-        // print_r($cart);
-        // die;
-
         if($cartItem){
             foreach($cartItem->getData() as $key=>$item){
                 $placeOrderItem->resetData()->setData($item->getOriginalData());
@@ -320,7 +316,7 @@ class Cart extends \Controller\Core\Admin{
         }
         
         $placeOrder = \Mage::getBlock('Block\Admin\Cart\PlaceOrder')->toHtml();
-        $this->makeresponse($placeOrder);
+        $this->makeResponse($placeOrder);
     }
 }
 
